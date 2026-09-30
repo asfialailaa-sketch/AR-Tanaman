@@ -1,47 +1,231 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>AR Tanaman</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AR Pembelajaran Tanaman Tomat</title>
 
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
+    html, body { margin:0; width:100%; height:100%; overflow:hidden; font-family:Arial,sans-serif; }
+    #infoPanel {
+      display:none;
+      position:fixed;
+      left:50%;
+      bottom:20px;
+      transform:translateX(-50%);
+      width:min(88vw,420px);
+      background:rgba(255,255,255,.97);
+      border-radius:16px;
+      padding:18px 18px 16px;
+      box-shadow:0 8px 30px rgba(0,0,0,.28);
+      z-index:20;
+      box-sizing:border-box;
+    }
+    #infoPanel h2 { margin:0 0 8px; font-size:22px; color:#1f5d28; }
+    #infoPanel p { margin:0; font-size:15px; line-height:1.5; color:#222; }
+    #closeInfo {
+      position:absolute; top:7px; right:10px; border:0; background:transparent;
+      font-size:24px; cursor:pointer; color:#555;
+    }
+    #hint {
+      position:fixed; left:50%; bottom:12px; transform:translateX(-50%);
+      z-index:10; background:rgba(0,0,0,.65); color:#fff; padding:9px 14px;
+      border-radius:999px; font-size:13px; text-align:center; max-width:90vw;
+      box-sizing:border-box;
+    }
+    #loading {
+      position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:30; background:#111; color:#fff; font-size:16px;
     }
   </style>
+
+  <script>
+    const INFO = {
+      akar: {
+        title: "Akar",
+        text: "Akar berfungsi menyerap air dan mineral dari tanah serta membantu menambatkan tanaman agar tetap berdiri."
+      },
+      batang: {
+        title: "Batang",
+        text: "Batang menopang daun, bunga, dan buah serta menjadi jalur pengangkutan air, mineral, dan hasil fotosintesis."
+      },
+      daun: {
+        title: "Daun",
+        text: "Daun merupakan tempat utama fotosintesis, yaitu proses pembentukan makanan dengan memanfaatkan cahaya matahari."
+      },
+      bunga: {
+        title: "Bunga",
+        text: "Bunga merupakan organ reproduksi tanaman tomat. Setelah proses penyerbukan dan pembuahan, bunga dapat berkembang menjadi buah."
+      },
+      buah: {
+        title: "Buah",
+        text: "Buah tomat melindungi biji dan berkembang setelah proses pembuahan. Buah juga menjadi bagian yang umum dimanfaatkan sebagai bahan pangan."
+      }
+    };
+
+    function showInfo(key) {
+      const data = INFO[key];
+      if (!data) return;
+      document.getElementById("infoTitle").textContent = data.title;
+      document.getElementById("infoText").textContent = data.text;
+      document.getElementById("infoPanel").style.display = "block";
+    }
+
+    AFRAME.registerComponent("label-clickable", {
+      init: function () {
+        this.el.addEventListener("click", () => showInfo(this.el.dataset.part));
+      }
+    });
+
+    AFRAME.registerComponent("touch-raycaster", {
+      init: function () {
+        const scene = this.el;
+        const canvas = scene.canvas;
+
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
+
+        function findClickable(obj) {
+          let current = obj;
+          while (current) {
+            if (current.el && current.el.classList && current.el.classList.contains("clickable")) {
+              return current.el;
+            }
+            current = current.parent;
+          }
+          return null;
+        }
+
+        function check(clientX, clientY) {
+          const cam = scene.camera;
+          if (!cam || !scene.canvas) return;
+
+          const rect = scene.canvas.getBoundingClientRect();
+          pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+          pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+          raycaster.setFromCamera(pointer, cam);
+
+          const roots = [];
+          document.querySelectorAll(".clickable").forEach(el => {
+            if (el.object3D && el.object3D.visible) roots.push(el.object3D);
+          });
+
+          const hits = raycaster.intersectObjects(roots, true);
+          if (!hits.length) return;
+
+          const target = findClickable(hits[0].object);
+          if (target) {
+            const key = target.dataset.part;
+            showInfo(key);
+          }
+        }
+
+        scene.addEventListener("renderstart", () => {
+          const c = scene.canvas;
+          if (!c) return;
+
+          c.addEventListener("pointerup", e => {
+            check(e.clientX, e.clientY);
+          }, {passive:true});
+
+          c.addEventListener("touchend", e => {
+            if (e.changedTouches && e.changedTouches.length) {
+              const t = e.changedTouches[0];
+              check(t.clientX, t.clientY);
+            }
+          }, {passive:true});
+        });
+      }
+    });
+  </script>
 </head>
 
 <body>
+  <div id="loading">Memuat AR…</div>
+
+  <div id="infoPanel">
+    <button id="closeInfo" onclick="document.getElementById('infoPanel').style.display='none'">×</button>
+    <h2 id="infoTitle"></h2>
+    <p id="infoText"></p>
+  </div>
+
+  <div id="hint">Arahkan kamera ke gambar tanaman, lalu tekan label bagian tanaman.</div>
 
   <a-scene
-    mindar-image="imageTargetSrc: ./targets.mind;"
-    color-space="sRGB"
-    renderer="colorManagement: true, physicallyCorrectLights"
+    mindar-image="imageTargetSrc: ./assets/targets.mind; uiScanning: yes; uiLoading: yes;"
+    renderer="colorManagement: true; physicallyCorrectLights: false"
+    embedded
     vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false">
+    device-orientation-permission-ui="enabled: false"
+    touch-raycaster>
 
-    <a-camera
-      position="0 0 0"
-      look-controls="enabled: false">
-    </a-camera>
+    <a-assets timeout="30000">
+      <a-asset-item id="tomatoModel" src="./assets/tanaman-tomat.glb"></a-asset-item>
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0">
 
-      <a-box
-        position="0 0.2 0"
-        scale="0.5 0.5 0.5"
-        material="color: green;">
-      </a-box>
+      <a-entity
+        gltf-model="#tomatoModel"
+        position="0 -0.05 0.02"
+        rotation="0 0 0"
+        scale="0.85 0.85 0.85">
+      </a-entity>
+
+      <!-- LABEL AKAR -->
+      <a-plane class="clickable" data-part="akar" label-clickable
+        position="-0.78 -0.72 0.12" width="0.62" height="0.28"
+        material="color:#111; opacity:0.88; shader:flat">
+        <a-text value="AKAR" align="center" color="#fff" width="2.8" position="0 0 0.01"></a-text>
+      </a-plane>
+
+      <!-- LABEL BATANG -->
+      <a-plane class="clickable" data-part="batang" label-clickable
+        position="0.82 -0.05 0.12" width="0.72" height="0.28"
+        material="color:#111; opacity:0.88; shader:flat">
+        <a-text value="BATANG" align="center" color="#fff" width="2.8" position="0 0 0.01"></a-text>
+      </a-plane>
+
+      <!-- LABEL DAUN -->
+      <a-plane class="clickable" data-part="daun" label-clickable
+        position="-0.80 0.48 0.12" width="0.62" height="0.28"
+        material="color:#111; opacity:0.88; shader:flat">
+        <a-text value="DAUN" align="center" color="#fff" width="2.8" position="0 0 0.01"></a-text>
+      </a-plane>
+
+      <!-- LABEL BUNGA -->
+      <a-plane class="clickable" data-part="bunga" label-clickable
+        position="0.76 1.05 0.12" width="0.68" height="0.28"
+        material="color:#111; opacity:0.88; shader:flat">
+        <a-text value="BUNGA" align="center" color="#fff" width="2.8" position="0 0 0.01"></a-text>
+      </a-plane>
+
+      <!-- LABEL BUAH -->
+      <a-plane class="clickable" data-part="buah" label-clickable
+        position="0.86 0.42 0.12" width="0.62" height="0.28"
+        material="color:#111; opacity:0.88; shader:flat">
+        <a-text value="BUAH" align="center" color="#fff" width="2.8" position="0 0 0.01"></a-text>
+      </a-plane>
 
     </a-entity>
-
   </a-scene>
 
+  <script>
+    window.addEventListener("load", () => {
+      const scene = document.querySelector("a-scene");
+      scene.addEventListener("loaded", () => {
+        document.getElementById("loading").style.display = "none";
+      });
+      setTimeout(() => {
+        document.getElementById("loading").style.display = "none";
+      }, 8000);
+    });
+  </script>
 </body>
 </html>
