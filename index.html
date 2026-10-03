@@ -3,13 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
   <title>AR Pembelajaran Tanaman Tomat</title>
 
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
-    html, body { margin:0; width:100%; height:100%; overflow:hidden; font-family:Arial,sans-serif; }
+    html, body {
+      margin:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      font-family:Arial,sans-serif;
+    }
+
+    /* =========================
+       PANEL INFORMASI AR
+       ========================= */
+
     #infoPanel {
       display:none;
       position:fixed;
@@ -24,136 +36,1135 @@
       z-index:20;
       box-sizing:border-box;
     }
-    #infoPanel h2 { margin:0 0 8px; font-size:22px; color:#1f5d28; }
-    #infoPanel p { margin:0; font-size:15px; line-height:1.5; color:#222; }
-    #closeInfo {
-      position:absolute; top:7px; right:10px; border:0; background:transparent;
-      font-size:24px; cursor:pointer; color:#555;
+
+    #infoPanel h2 {
+      margin:0 0 8px;
+      font-size:22px;
+      color:#1f5d28;
     }
+
+    #infoPanel p {
+      margin:0;
+      font-size:15px;
+      line-height:1.5;
+      color:#222;
+    }
+
+    #closeInfo {
+      position:absolute;
+      top:7px;
+      right:10px;
+      border:0;
+      background:transparent;
+      font-size:24px;
+      cursor:pointer;
+      color:#555;
+    }
+
+    /* =========================
+       PETUNJUK AR
+       ========================= */
+
     #hint {
-      position:fixed; left:50%; bottom:12px; transform:translateX(-50%);
-      z-index:10; background:rgba(0,0,0,.65); color:#fff; padding:9px 14px;
-      border-radius:999px; font-size:13px; text-align:center; max-width:90vw;
+      position:fixed;
+      left:50%;
+      bottom:12px;
+      transform:translateX(-50%);
+      z-index:10;
+      background:rgba(0,0,0,.65);
+      color:#fff;
+      padding:9px 14px;
+      border-radius:999px;
+      font-size:13px;
+      text-align:center;
+      max-width:90vw;
       box-sizing:border-box;
     }
+
+    /* =========================
+       LOADING
+       ========================= */
+
     #loading {
-      position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
-      z-index:30; background:#111; color:#fff; font-size:16px;
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:30;
+      background:#111;
+      color:#fff;
+      font-size:16px;
+    }
+
+    /* =========================
+       TOMBOL MULAI KUIS
+       ========================= */
+
+    #quizStartButton {
+      display:none;
+      position:fixed;
+      left:50%;
+      bottom:55px;
+      transform:translateX(-50%);
+      z-index:25;
+
+      border:none;
+      border-radius:14px;
+      padding:13px 24px;
+
+      background:#1f7a36;
+      color:white;
+
+      font-size:16px;
+      font-weight:bold;
+
+      box-shadow:0 5px 18px rgba(0,0,0,.3);
+      cursor:pointer;
+    }
+
+    #quizStartButton:active {
+      transform:translateX(-50%) scale(.96);
+    }
+
+    /* =========================
+       PANEL KUIS
+       ========================= */
+
+    #quizPanel {
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:50;
+
+      background:rgba(0,0,0,.72);
+
+      align-items:center;
+      justify-content:center;
+
+      padding:18px;
+      box-sizing:border-box;
+    }
+
+    #quizBox {
+      width:min(92vw,450px);
+      max-height:90vh;
+      overflow-y:auto;
+
+      background:white;
+      border-radius:20px;
+
+      padding:22px;
+
+      box-sizing:border-box;
+
+      box-shadow:0 10px 40px rgba(0,0,0,.4);
+    }
+
+    #quizHeader {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:15px;
+    }
+
+    #quizHeader h2 {
+      margin:0;
+      color:#1f5d28;
+      font-size:22px;
+    }
+
+    #quizNumber {
+      font-size:13px;
+      color:#666;
+    }
+
+    #questionText {
+      font-size:18px;
+      font-weight:bold;
+      line-height:1.45;
+      color:#222;
+      margin:10px 0 18px;
+    }
+
+    /* =========================
+       PILIHAN JAWABAN
+       ========================= */
+
+    .answerButton {
+      display:block;
+      width:100%;
+
+      margin-bottom:10px;
+
+      padding:13px 14px;
+
+      border:2px solid #ddd;
+      border-radius:12px;
+
+      background:#fff;
+
+      text-align:left;
+
+      font-size:15px;
+      line-height:1.4;
+
+      cursor:pointer;
+
+      box-sizing:border-box;
+    }
+
+    .answerButton:hover {
+      background:#f3f8f4;
+    }
+
+    .answerButton:disabled {
+      cursor:default;
+    }
+
+    .answerCorrect {
+      background:#dff5e3 !important;
+      border-color:#299447 !important;
+    }
+
+    .answerWrong {
+      background:#ffe1e1 !important;
+      border-color:#d83a3a !important;
+    }
+
+    /* =========================
+       FEEDBACK
+       ========================= */
+
+    #quizFeedback {
+      display:none;
+
+      margin-top:15px;
+
+      padding:13px;
+
+      border-radius:12px;
+
+      font-size:14px;
+      line-height:1.5;
+    }
+
+    #nextQuestionButton {
+      display:none;
+
+      width:100%;
+
+      margin-top:14px;
+
+      padding:13px;
+
+      border:none;
+      border-radius:12px;
+
+      background:#1f7a36;
+      color:white;
+
+      font-size:15px;
+      font-weight:bold;
+
+      cursor:pointer;
+    }
+
+    /* =========================
+       HASIL KUIS
+       ========================= */
+
+    #quizResult {
+      display:none;
+      text-align:center;
+    }
+
+    #quizResult h2 {
+      color:#1f5d28;
+      margin-top:5px;
+    }
+
+    #scoreNumber {
+      font-size:48px;
+      font-weight:bold;
+      color:#1f7a36;
+      margin:15px 0;
+    }
+
+    #scoreMessage {
+      font-size:15px;
+      line-height:1.5;
+      color:#333;
+      margin-bottom:20px;
+    }
+
+    .resultButton {
+      width:100%;
+      padding:13px;
+      margin-top:10px;
+
+      border:none;
+      border-radius:12px;
+
+      font-size:15px;
+      font-weight:bold;
+
+      cursor:pointer;
+    }
+
+    #retryButton {
+      background:#1f7a36;
+      color:white;
+    }
+
+    #backARButton {
+      background:#eee;
+      color:#333;
     }
   </style>
 
   <script>
+
+    /* ==================================================
+       INFORMASI BAGIAN TANAMAN
+       ================================================== */
+
     const INFO = {
+
       akar: {
         title: "Akar",
         text: "Akar berfungsi menyerap air dan mineral dari tanah serta membantu menambatkan tanaman agar tetap berdiri."
       },
+
       batang: {
         title: "Batang",
         text: "Batang menopang daun, bunga, dan buah serta menjadi jalur pengangkutan air, mineral, dan hasil fotosintesis."
       },
+
       daun: {
         title: "Daun",
         text: "Daun merupakan tempat utama fotosintesis, yaitu proses pembentukan makanan dengan memanfaatkan cahaya matahari."
       },
+
       bunga: {
         title: "Bunga",
         text: "Bunga merupakan organ reproduksi tanaman tomat. Setelah proses penyerbukan dan pembuahan, bunga dapat berkembang menjadi buah."
       },
+
       buah: {
         title: "Buah",
         text: "Buah tomat melindungi biji dan berkembang setelah proses pembuahan. Buah juga menjadi bagian yang umum dimanfaatkan sebagai bahan pangan."
       }
+
     };
 
+
+    /* ==================================================
+       FUNGSI INFORMASI AR
+       ================================================== */
+
     function showInfo(key) {
+
       const data = INFO[key];
+
       if (!data) return;
+
       document.getElementById("infoTitle").textContent = data.title;
+
       document.getElementById("infoText").textContent = data.text;
+
       document.getElementById("infoPanel").style.display = "block";
     }
 
+
+    /* ==================================================
+       KOMPONEN LABEL AR
+       ================================================== */
+
     AFRAME.registerComponent("label-clickable", {
+
       init: function () {
-        this.el.addEventListener("click", () => showInfo(this.el.dataset.part));
+
+        this.el.addEventListener("click", () => {
+
+          showInfo(this.el.dataset.part);
+
+        });
+
       }
+
     });
 
+
+    /* ==================================================
+       TOUCH RAYCASTER
+       ================================================== */
+
     AFRAME.registerComponent("touch-raycaster", {
+
       init: function () {
+
         const scene = this.el;
-        const canvas = scene.canvas;
 
         const raycaster = new THREE.Raycaster();
+
         const pointer = new THREE.Vector2();
 
+
         function findClickable(obj) {
+
           let current = obj;
+
           while (current) {
-            if (current.el && current.el.classList && current.el.classList.contains("clickable")) {
+
+            if (
+              current.el &&
+              current.el.classList &&
+              current.el.classList.contains("clickable")
+            ) {
+
               return current.el;
+
             }
+
             current = current.parent;
+
           }
+
           return null;
+
         }
 
+
         function check(clientX, clientY) {
+
           const cam = scene.camera;
+
           if (!cam || !scene.canvas) return;
 
+
           const rect = scene.canvas.getBoundingClientRect();
-          pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-          pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+
+          pointer.x =
+            ((clientX - rect.left) / rect.width) * 2 - 1;
+
+          pointer.y =
+            -((clientY - rect.top) / rect.height) * 2 + 1;
+
 
           raycaster.setFromCamera(pointer, cam);
 
+
           const roots = [];
+
+
           document.querySelectorAll(".clickable").forEach(el => {
-            if (el.object3D && el.object3D.visible) roots.push(el.object3D);
+
+            if (el.object3D && el.object3D.visible) {
+
+              roots.push(el.object3D);
+
+            }
+
           });
 
-          const hits = raycaster.intersectObjects(roots, true);
+
+          const hits =
+            raycaster.intersectObjects(roots, true);
+
+
           if (!hits.length) return;
 
-          const target = findClickable(hits[0].object);
+
+          const target =
+            findClickable(hits[0].object);
+
+
           if (target) {
+
             const key = target.dataset.part;
+
             showInfo(key);
+
           }
+
         }
 
+
         scene.addEventListener("renderstart", () => {
+
           const c = scene.canvas;
+
           if (!c) return;
 
-          c.addEventListener("pointerup", e => {
-            check(e.clientX, e.clientY);
-          }, {passive:true});
 
-          c.addEventListener("touchend", e => {
-            if (e.changedTouches && e.changedTouches.length) {
-              const t = e.changedTouches[0];
-              check(t.clientX, t.clientY);
-            }
-          }, {passive:true});
+          c.addEventListener(
+            "pointerup",
+            e => {
+
+              check(e.clientX, e.clientY);
+
+            },
+            {passive:true}
+          );
+
+
+          c.addEventListener(
+            "touchend",
+            e => {
+
+              if (
+                e.changedTouches &&
+                e.changedTouches.length
+              ) {
+
+                const t = e.changedTouches[0];
+
+                check(t.clientX, t.clientY);
+
+              }
+
+            },
+            {passive:true}
+          );
+
         });
+
       }
+
     });
+
+
+    /* ==================================================
+       DATA KUIS 10 SOAL
+       ================================================== */
+
+    const QUIZ = [
+
+      {
+        question:
+          "Bagian tanaman yang berfungsi menyerap air dan mineral dari tanah adalah...",
+
+        options: [
+          "Daun",
+          "Bunga",
+          "Akar",
+          "Buah"
+        ],
+
+        answer: 2,
+
+        explanation:
+          "Akar berfungsi menyerap air dan mineral dari tanah serta membantu menopang tanaman."
+      },
+
+
+      {
+        question:
+          "Bagian tanaman yang berfungsi menopang tanaman dan mengangkut air serta mineral adalah...",
+
+        options: [
+          "Batang",
+          "Buah",
+          "Bunga",
+          "Daun"
+        ],
+
+        answer: 0,
+
+        explanation:
+          "Batang menopang tanaman dan menjadi jalur pengangkutan air, mineral, serta hasil fotosintesis."
+      },
+
+
+      {
+        question:
+          "Daun merupakan bagian tanaman yang berperan penting dalam proses...",
+
+        options: [
+          "Fotosintesis",
+          "Perkecambahan",
+          "Penyerbukan saja",
+          "Pembentukan akar"
+        ],
+
+        answer: 0,
+
+        explanation:
+          "Daun merupakan tempat utama fotosintesis, yaitu proses pembentukan makanan dengan bantuan cahaya matahari."
+      },
+
+
+      {
+        question:
+          "Bagian tanaman tomat yang berkembang menjadi buah setelah proses pembuahan adalah...",
+
+        options: [
+          "Akar",
+          "Bunga",
+          "Daun",
+          "Batang"
+        ],
+
+        answer: 1,
+
+        explanation:
+          "Bunga merupakan organ reproduksi tanaman. Setelah penyerbukan dan pembuahan, bagian bunga dapat berkembang menjadi buah."
+      },
+
+
+      {
+        question:
+          "Apa fungsi utama buah pada tanaman tomat?",
+
+        options: [
+          "Menyerap air dari tanah",
+          "Melindungi biji",
+          "Menopang tanaman",
+          "Menyerap cahaya matahari"
+        ],
+
+        answer: 1,
+
+        explanation:
+          "Buah berfungsi melindungi biji dan berkembang setelah proses pembuahan."
+      },
+
+
+      {
+        question:
+          "Proses tumbuhan membuat makanan sendiri dengan bantuan cahaya matahari disebut...",
+
+        options: [
+          "Respirasi",
+          "Fotosintesis",
+          "Penyerbukan",
+          "Perkecambahan"
+        ],
+
+        answer: 1,
+
+        explanation:
+          "Fotosintesis adalah proses tumbuhan membuat makanan dengan memanfaatkan cahaya matahari."
+      },
+
+
+      {
+        question:
+          "Bagian tanaman yang biasanya menjadi tempat utama terjadinya fotosintesis adalah...",
+
+        options: [
+          "Akar",
+          "Batang",
+          "Daun",
+          "Buah"
+        ],
+
+        answer: 2,
+
+        explanation:
+          "Daun memiliki jaringan yang berperan penting dalam proses fotosintesis."
+      },
+
+
+      {
+        question:
+          "Apa yang terdapat di dalam buah tomat dan dapat berkembang menjadi tanaman baru?",
+
+        options: [
+          "Biji",
+          "Akar",
+          "Batang",
+          "Daun"
+        ],
+
+        answer: 0,
+
+        explanation:
+          "Biji terdapat di dalam buah dan dapat berkembang menjadi tanaman baru jika kondisi perkecambahan sesuai."
+      },
+
+
+      {
+        question:
+          "Urutan perkembangan tanaman tomat yang paling tepat adalah...",
+
+        options: [
+          "Biji → kecambah → tanaman → bunga → buah",
+          "Buah → bunga → biji → akar → tanaman",
+          "Bunga → biji → buah → kecambah → tanaman",
+          "Akar → buah → biji → bunga → kecambah"
+        ],
+
+        answer: 0,
+
+        explanation:
+          "Secara sederhana, perkembangan tanaman dapat dimulai dari biji, berkecambah, menjadi tanaman, kemudian berbunga dan menghasilkan buah."
+      },
+
+
+      {
+        question:
+          "Jika tanaman tomat tidak mendapatkan cukup cahaya, proses yang paling langsung terganggu adalah...",
+
+        options: [
+          "Fotosintesis",
+          "Penyerbukan",
+          "Pembentukan biji saja",
+          "Penyerapan mineral oleh akar"
+        ],
+
+        answer: 0,
+
+        explanation:
+          "Cahaya merupakan salah satu faktor penting dalam proses fotosintesis."
+      }
+
+    ];
+
+
+    /* ==================================================
+       VARIABEL KUIS
+       ================================================== */
+
+    let currentQuestion = 0;
+
+    let score = 0;
+
+    let answered = false;
+
+
+    /* ==================================================
+       MULAI KUIS
+       ================================================== */
+
+    function startQuiz() {
+
+      currentQuestion = 0;
+
+      score = 0;
+
+      answered = false;
+
+
+      document.getElementById("infoPanel").style.display = "none";
+
+      document.getElementById("quizStartButton").style.display = "none";
+
+      document.getElementById("quizPanel").style.display = "flex";
+
+      document.getElementById("quizBox").style.display = "block";
+
+      document.getElementById("quizResult").style.display = "none";
+
+      document.getElementById("quizQuestionArea").style.display = "block";
+
+
+      showQuestion();
+
+    }
+
+
+    /* ==================================================
+       TAMPILKAN SOAL
+       ================================================== */
+
+    function showQuestion() {
+
+      answered = false;
+
+
+      const q = QUIZ[currentQuestion];
+
+
+      document.getElementById("quizNumber").textContent =
+        "Soal " + (currentQuestion + 1) + " dari " + QUIZ.length;
+
+
+      document.getElementById("questionText").textContent =
+        q.question;
+
+
+      const container =
+        document.getElementById("answers");
+
+
+      container.innerHTML = "";
+
+
+      q.options.forEach((option, index) => {
+
+        const button =
+          document.createElement("button");
+
+
+        button.className = "answerButton";
+
+        button.textContent =
+          String.fromCharCode(65 + index) + ". " + option;
+
+
+        button.addEventListener("click", () => {
+
+          checkAnswer(index, button);
+
+        });
+
+
+        container.appendChild(button);
+
+      });
+
+
+      document.getElementById("quizFeedback").style.display = "none";
+
+      document.getElementById("nextQuestionButton").style.display = "none";
+
+    }
+
+
+    /* ==================================================
+       CEK JAWABAN
+       ================================================== */
+
+    function checkAnswer(selected, selectedButton) {
+
+      if (answered) return;
+
+      answered = true;
+
+
+      const q = QUIZ[currentQuestion];
+
+      const buttons =
+        document.querySelectorAll(".answerButton");
+
+
+      buttons.forEach(button => {
+
+        button.disabled = true;
+
+      });
+
+
+      if (selected === q.answer) {
+
+        score += 10;
+
+        selectedButton.classList.add("answerCorrect");
+
+
+        document.getElementById("quizFeedback").style.display = "block";
+
+        document.getElementById("quizFeedback").style.background = "#dff5e3";
+
+        document.getElementById("quizFeedback").style.color = "#155724";
+
+        document.getElementById("quizFeedback").textContent =
+          "✓ Benar! " + q.explanation;
+
+      } else {
+
+        selectedButton.classList.add("answerWrong");
+
+
+        buttons[q.answer].classList.add("answerCorrect");
+
+
+        document.getElementById("quizFeedback").style.display = "block";
+
+        document.getElementById("quizFeedback").style.background = "#ffe1e1";
+
+        document.getElementById("quizFeedback").style.color = "#721c24";
+
+        document.getElementById("quizFeedback").textContent =
+          "✗ Kurang tepat. " +
+          "Jawaban yang benar adalah " +
+          q.options[q.answer] +
+          ". " +
+          q.explanation;
+
+      }
+
+
+      document.getElementById("nextQuestionButton").style.display = "block";
+
+
+      if (currentQuestion === QUIZ.length - 1) {
+
+        document.getElementById("nextQuestionButton").textContent =
+          "Lihat Hasil";
+
+      } else {
+
+        document.getElementById("nextQuestionButton").textContent =
+          "Soal Berikutnya";
+
+      }
+
+    }
+
+
+    /* ==================================================
+       SOAL BERIKUTNYA
+       ================================================== */
+
+    function nextQuestion() {
+
+      currentQuestion++;
+
+
+      if (currentQuestion >= QUIZ.length) {
+
+        showResult();
+
+        return;
+
+      }
+
+
+      showQuestion();
+
+    }
+
+
+    /* ==================================================
+       HASIL KUIS
+       ================================================== */
+
+    function showResult() {
+
+      document.getElementById("quizQuestionArea").style.display = "none";
+
+      document.getElementById("quizResult").style.display = "block";
+
+
+      document.getElementById("scoreNumber").textContent =
+        score + " / 100";
+
+
+      let message = "";
+
+
+      if (score >= 90) {
+
+        message =
+          "Sangat baik! Kamu sudah memahami bagian dan fungsi tanaman tomat dengan sangat baik.";
+
+      } else if (score >= 70) {
+
+        message =
+          "Bagus! Kamu sudah memahami sebagian besar materi tanaman tomat.";
+
+      } else if (score >= 50) {
+
+        message =
+          "Cukup baik. Coba pelajari kembali bagian-bagian tanaman tomat lalu ulangi kuis.";
+
+      } else {
+
+        message =
+          "Yuk pelajari kembali bagian-bagian tanaman tomat dan coba kuis sekali lagi.";
+
+      }
+
+
+      document.getElementById("scoreMessage").textContent =
+        "Jawaban benar: " +
+        (score / 10) +
+        " dari 10 soal. " +
+        message;
+
+    }
+
+
+    /* ==================================================
+       ULANGI KUIS
+       ================================================== */
+
+    function retryQuiz() {
+
+      startQuiz();
+
+    }
+
+
+    /* ==================================================
+       KEMBALI KE AR
+       ================================================== */
+
+    function backToAR() {
+
+      document.getElementById("quizPanel").style.display = "none";
+
+      document.getElementById("quizStartButton").style.display = "block";
+
+    }
+
+
+    /* ==================================================
+       KETIKA AR MENEMUKAN TARGET
+       ================================================== */
+
+    AFRAME.registerComponent("quiz-trigger", {
+
+      init: function () {
+
+        this.el.addEventListener("targetFound", () => {
+
+          document.getElementById("quizStartButton").style.display = "block";
+
+        });
+
+
+        this.el.addEventListener("targetLost", () => {
+
+          document.getElementById("quizStartButton").style.display = "none";
+
+        });
+
+      }
+
+    });
+
   </script>
 </head>
 
-<body>
-  <div id="loading">Memuat AR…</div>
 
-  <div id="infoPanel">
-    <button id="closeInfo" onclick="document.getElementById('infoPanel').style.display='none'">×</button>
-    <h2 id="infoTitle"></h2>
-    <p id="infoText"></p>
+<body>
+
+  <!-- LOADING -->
+
+  <div id="loading">
+    Memuat AR…
   </div>
 
-  <div id="hint">Arahkan kamera ke gambar tanaman, lalu tekan label bagian tanaman.</div>
+
+  <!-- PANEL INFORMASI -->
+
+  <div id="infoPanel">
+
+    <button
+      id="closeInfo"
+      onclick="document.getElementById('infoPanel').style.display='none'">
+      ×
+    </button>
+
+    <h2 id="infoTitle"></h2>
+
+    <p id="infoText"></p>
+
+  </div>
+
+
+  <!-- PETUNJUK -->
+
+  <div id="hint">
+    Arahkan kamera ke gambar tanaman, lalu tekan label bagian tanaman.
+  </div>
+
+
+  <!-- TOMBOL KUIS -->
+
+  <button
+    id="quizStartButton"
+    onclick="startQuiz()">
+
+    📝 MULAI KUIS
+
+  </button>
+
+
+  <!-- PANEL KUIS -->
+
+  <div id="quizPanel">
+
+    <div id="quizBox">
+
+
+      <!-- AREA SOAL -->
+
+      <div id="quizQuestionArea">
+
+        <div id="quizHeader">
+
+          <h2>Kuis Tanaman Tomat</h2>
+
+          <span id="quizNumber">
+            Soal 1 dari 10
+          </span>
+
+        </div>
+
+
+        <div id="questionText"></div>
+
+
+        <div id="answers"></div>
+
+
+        <div id="quizFeedback"></div>
+
+
+        <button
+          id="nextQuestionButton"
+          onclick="nextQuestion()">
+
+          Soal Berikutnya
+
+        </button>
+
+      </div>
+
+
+      <!-- HASIL -->
+
+      <div id="quizResult">
+
+        <div style="font-size:45px;">
+          🌱
+        </div>
+
+        <h2>
+          Kuis Selesai!
+        </h2>
+
+        <div id="scoreNumber">
+          0 / 100
+        </div>
+
+        <div id="scoreMessage"></div>
+
+
+        <button
+          id="retryButton"
+          class="resultButton"
+          onclick="retryQuiz()">
+
+          🔄 Ulangi Kuis
+
+        </button>
+
+
+        <button
+          id="backARButton"
+          class="resultButton"
+          onclick="backToAR()">
+
+          🌱 Kembali ke AR
+
+        </button>
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+
+  <!-- AR -->
 
   <a-scene
     mindar-image="imageTargetSrc: ./assets/targets.mind; uiScanning: yes; uiLoading: yes;"
@@ -163,13 +1174,29 @@
     device-orientation-permission-ui="enabled: false"
     touch-raycaster>
 
+
     <a-assets timeout="30000">
-      <a-asset-item id="tomatoModel" src="./assets/tanaman-tomat.glb"></a-asset-item>
+
+      <a-asset-item
+        id="tomatoModel"
+        src="./assets/tanaman-tomat.glb">
+      </a-asset-item>
+
     </a-assets>
 
-    <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-    <a-entity mindar-image-target="targetIndex: 0">
+    <a-camera
+      position="0 0 0"
+      look-controls="enabled:false">
+    </a-camera>
+
+
+    <a-entity
+      mindar-image-target="targetIndex: 0"
+      quiz-trigger>
+
+
+      <!-- MODEL TANAMAN -->
 
       <a-entity
         gltf-model="#tomatoModel"
@@ -178,54 +1205,158 @@
         scale="0.85 0.85 0.85">
       </a-entity>
 
+
       <!-- LABEL AKAR -->
-      <a-plane class="clickable" data-part="akar" label-clickable
-        position="-0.78 -0.72 0.12" width="0.62" height="0.28"
+
+      <a-plane
+        class="clickable"
+        data-part="akar"
+        label-clickable
+
+        position="-0.78 -0.72 0.12"
+        width="0.62"
+        height="0.28"
+
         material="color:#111; opacity:0.88; shader:flat">
-        <a-text value="AKAR" align="center" color="#fff" width="2.8" position="0 0 0.01"></a-text>
+
+        <a-text
+          value="AKAR"
+          align="center"
+          color="#fff"
+          width="2.8"
+          position="0 0 0.01">
+        </a-text>
+
       </a-plane>
+
 
       <!-- LABEL BATANG -->
-      <a-plane class="clickable" data-part="batang" label-clickable
-        position="0.82 -0.05 0.12" width="0.72" height="0.28"
+
+      <a-plane
+        class="clickable"
+        data-part="batang"
+        label-clickable
+
+        position="0.82 -0.05 0.12"
+        width="0.72"
+        height="0.28"
+
         material="color:#111; opacity:0.88; shader:flat">
-        <a-text value="BATANG" align="center" color="#fff" width="2.8" position="0 0 0.01"></a-text>
+
+        <a-text
+          value="BATANG"
+          align="center"
+          color="#fff"
+          width="2.8"
+          position="0 0 0.01">
+        </a-text>
+
       </a-plane>
+
 
       <!-- LABEL DAUN -->
-      <a-plane class="clickable" data-part="daun" label-clickable
-        position="-0.80 0.48 0.12" width="0.62" height="0.28"
+
+      <a-plane
+        class="clickable"
+        data-part="daun"
+        label-clickable
+
+        position="-0.80 0.48 0.12"
+        width="0.62"
+        height="0.28"
+
         material="color:#111; opacity:0.88; shader:flat">
-        <a-text value="DAUN" align="center" color="#fff" width="2.8" position="0 0 0.01"></a-text>
+
+        <a-text
+          value="DAUN"
+          align="center"
+          color="#fff"
+          width="2.8"
+          position="0 0 0.01">
+        </a-text>
+
       </a-plane>
+
 
       <!-- LABEL BUNGA -->
-      <a-plane class="clickable" data-part="bunga" label-clickable
-        position="0.76 1.05 0.12" width="0.68" height="0.28"
+
+      <a-plane
+        class="clickable"
+        data-part="bunga"
+        label-clickable
+
+        position="0.76 1.05 0.12"
+        width="0.68"
+        height="0.28"
+
         material="color:#111; opacity:0.88; shader:flat">
-        <a-text value="BUNGA" align="center" color="#fff" width="2.8" position="0 0 0.01"></a-text>
+
+        <a-text
+          value="BUNGA"
+          align="center"
+          color="#fff"
+          width="2.8"
+          position="0 0 0.01">
+        </a-text>
+
       </a-plane>
+
 
       <!-- LABEL BUAH -->
-      <a-plane class="clickable" data-part="buah" label-clickable
-        position="0.86 0.42 0.12" width="0.62" height="0.28"
+
+      <a-plane
+        class="clickable"
+        data-part="buah"
+        label-clickable
+
+        position="0.86 0.42 0.12"
+        width="0.62"
+        height="0.28"
+
         material="color:#111; opacity:0.88; shader:flat">
-        <a-text value="BUAH" align="center" color="#fff" width="2.8" position="0 0 0.01"></a-text>
+
+        <a-text
+          value="BUAH"
+          align="center"
+          color="#fff"
+          width="2.8"
+          position="0 0 0.01">
+        </a-text>
+
       </a-plane>
 
+
     </a-entity>
+
   </a-scene>
 
+
+  <!-- LOADING SCRIPT -->
+
   <script>
+
     window.addEventListener("load", () => {
-      const scene = document.querySelector("a-scene");
+
+      const scene =
+        document.querySelector("a-scene");
+
+
       scene.addEventListener("loaded", () => {
+
         document.getElementById("loading").style.display = "none";
+
       });
+
+
       setTimeout(() => {
+
         document.getElementById("loading").style.display = "none";
+
       }, 8000);
+
     });
+
   </script>
+
 </body>
 </html>
