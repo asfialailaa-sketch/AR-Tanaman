@@ -21,34 +21,46 @@
     /* =========================
        PANEL INFORMASI AR
        ========================= */
+    
+      #infoPanel {
+  position: fixed;
+  top: 50%;
+  right: 10px;
+  bottom: auto;
 
-    #infoPanel {
-      display:none;
-      position:fixed;
-      left:50%;
-      bottom:20px;
-      transform:translateX(-50%);
-      width:min(88vw,420px);
-      background:rgba(255,255,255,.97);
-      border-radius:16px;
-      padding:18px 18px 16px;
-      box-shadow:0 8px 30px rgba(0,0,0,.28);
-      z-index:20;
-      box-sizing:border-box;
-    }
+  transform: translateY(-50%);
 
-    #infoPanel h2 {
-      margin:0 0 8px;
-      font-size:22px;
-      color:#1f5d28;
-    }
+  width: min(42vw, 300px);
+  max-height: 38vh;
 
-    #infoPanel p {
-      margin:0;
-      font-size:15px;
-      line-height:1.5;
-      color:#222;
-    }
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: 18px;
+
+  background: rgba(25, 25, 25, 0.95);
+  color: white;
+
+  border-radius: 18px;
+
+  z-index: 9998;
+
+  box-sizing: border-box;
+
+  display: none;
+}
+
+   #infoPanel h2 {
+  font-size: 22px;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+#infoPanel p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
 
     #closeInfo {
       position:absolute;
@@ -101,27 +113,29 @@
        TOMBOL MULAI KUIS
        ========================= */
 
-    #quizStartButton {
-      display:none;
-      position:fixed;
-      left:50%;
-      bottom:55px;
-      transform:translateX(-50%);
-      z-index:25;
+   #quizStartButton {
+  position: fixed;
 
-      border:none;
-      border-radius:14px;
-      padding:13px 24px;
+  top: 12%;
+  right: 10px;
 
-      background:#1f7a36;
-      color:white;
+  width: min(42vw, 300px);
 
-      font-size:16px;
-      font-weight:bold;
+  padding: 13px 15px;
 
-      box-shadow:0 5px 18px rgba(0,0,0,.3);
-      cursor:pointer;
-    }
+  border: none;
+  border-radius: 18px;
+
+  background: #006b16;
+  color: white;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  z-index: 10000;
+
+  box-sizing: border-box;
+}
 
     #quizStartButton:active {
       transform:translateX(-50%) scale(.96);
