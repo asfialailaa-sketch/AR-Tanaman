@@ -1,3 +1,4 @@
+```
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -1278,15 +1279,37 @@ function showInfo(key, target) {
       </a-entity>
 
 
+      <!-- PANAH AKAR: dari label menuju bagian akar -->
+      <a-entity line="start: -0.53 -0.60 0.16; end: -0.22 -0.48 0.16; color: #ffeb3b"></a-entity>
+      <a-cone color="#ffeb3b" radius-bottom="0.035" radius-top="0" height="0.09" position="-0.22 -0.48 0.16" rotation="0 0 -69"></a-cone>
+
       <!-- LABEL AKAR -->
 
+      <a-plane
+        class="clickable"
+        data-part="akar"
+        label-clickable
 
-<!-- TES PANAH KUNING -->
-<a-entity
-  position="-0.42 -0.55 0.16"
-  line="start: -0.2 -0.2 0; end: 0.2 0.2 0; color: #ffeb3b">
-</a-entity>
+        position="-0.78 -0.72 0.12"
+        width="0.62"
+        height="0.28"
 
+        material="color:#111; opacity:0.88; shader:flat">
+
+        <a-text
+          value="AKAR"
+          align="center"
+          color="#fff"
+          width="2.8"
+          position="0 0 0.01">
+        </a-text>
+
+      </a-plane>
+
+
+      <!-- PANAH BATANG: dari label menuju batang -->
+      <a-entity line="start: 0.48 -0.10 0.16; end: 0.12 -0.10 0.16; color: #ffeb3b"></a-entity>
+      <a-cone color="#ffeb3b" radius-bottom="0.035" radius-top="0" height="0.09" position="0.12 -0.10 0.16" rotation="0 0 90"></a-cone>
 
       <!-- LABEL BATANG -->
 
@@ -1312,6 +1335,10 @@ function showInfo(key, target) {
       </a-plane>
 
 
+      <!-- PANAH DAUN: dari label menuju daun -->
+      <a-entity line="start: -0.52 0.40 0.16; end: -0.22 0.48 0.16; color: #ffeb3b"></a-entity>
+      <a-cone color="#ffeb3b" radius-bottom="0.035" radius-top="0" height="0.09" position="-0.22 0.48 0.16" rotation="0 0 -75"></a-cone>
+
       <!-- LABEL DAUN -->
 
       <a-plane
@@ -1336,6 +1363,10 @@ function showInfo(key, target) {
       </a-plane>
 
 
+      <!-- PANAH BUNGA: dari label menuju bunga -->
+      <a-entity line="start: 0.48 0.90 0.16; end: 0.20 0.72 0.16; color: #ffeb3b"></a-entity>
+      <a-cone color="#ffeb3b" radius-bottom="0.035" radius-top="0" height="0.09" position="0.20 0.72 0.16" rotation="0 0 123"></a-cone>
+
       <!-- LABEL BUNGA -->
 
       <a-plane
@@ -1359,6 +1390,10 @@ function showInfo(key, target) {
 
       </a-plane>
 
+
+      <!-- PANAH BUAH: dari label menuju buah -->
+      <a-entity line="start: 0.53 0.36 0.16; end: 0.25 0.24 0.16; color: #ffeb3b"></a-entity>
+      <a-cone color="#ffeb3b" radius-bottom="0.035" radius-top="0" height="0.09" position="0.25 0.24 0.16" rotation="0 0 113"></a-cone>
 
       <!-- LABEL BUAH -->
 
@@ -1418,3 +1453,4 @@ function showInfo(key, target) {
 
 </body>
 </html>
+```
