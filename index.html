@@ -1280,27 +1280,26 @@ function showInfo(key, target) {
 
       <!-- LABEL AKAR -->
 
-      <a-plane
-        class="clickable"
-        data-part="akar"
-        label-clickable
-
-        position="-0.78 -0.72 0.12"
-        width="0.62"
-        height="0.28"
-
-        material="color:#111; opacity:0.88; shader:flat">
-
-        <a-text
-          value="AKAR"
-          align="center"
-          color="#fff"
-          width="2.8"
-          position="0 0 0.01">
-        </a-text>
-
-      </a-plane>
-
+<!-- PANAH UJI COBA MENUJU AREA AKAR -->
+<a-entity
+  position="-0.42 -0.55 0.14"
+  rotation="0 0 0">
+  <a-cylinder
+    color="#ffeb3b"
+    radius="0.012"
+    height="0.38"
+    rotation="0 0 45"
+    position="0.13 0.13 0">
+  </a-cylinder>
+  <a-cone
+    color="#ffeb3b"
+    radius-bottom="0.045"
+    radius-top="0"
+    height="0.10"
+    rotation="0 0 135"
+    position="-0.02 -0.02 0">
+  </a-cone>
+</a-entity>
 
       <!-- LABEL BATANG -->
 
