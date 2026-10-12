@@ -379,74 +379,18 @@ cursor: pointer;
        FUNGSI INFORMASI AR
        ================================================== */
 
-    
-function showInfo(key, target) {
-  const data = INFO[key];
+    function showInfo(key) {
 
-  if (!data) return;
+      const data = INFO[key];
 
-  const panel = document.getElementById("infoPanel");
+      if (!data) return;
 
-  document.getElementById("infoTitle").textContent = data.title;
-  document.getElementById("infoText").textContent = data.text;
+      document.getElementById("infoTitle").textContent = data.title;
 
-  panel.style.display = "block";
+      document.getElementById("infoText").textContent = data.text;
 
-  // Tunggu sampai ukuran kotak informasi diketahui
-  requestAnimationFrame(() => {
-    const scene = document.querySelector("a-scene");
-
-    if (!scene || !scene.camera || !scene.canvas || !target) {
-      return;
+      document.getElementById("infoPanel").style.display = "block";
     }
-
-    // Ambil posisi label AR yang diklik
-    const worldPos = new THREE.Vector3();
-
-    target.object3D.getWorldPosition(worldPos);
-
-    // Ubah posisi 3D menjadi posisi di layar
-    worldPos.project(scene.camera);
-
-    const rect = scene.canvas.getBoundingClientRect();
-
-    const x = rect.left + (worldPos.x + 1) * rect.width / 2;
-    const y = rect.top + (1 - worldPos.y) * rect.height / 2;
-
-    const margin = 12;
-    const gap = 12;
-
-    const panelWidth = panel.offsetWidth;
-    const panelHeight = panel.offsetHeight;
-
-    // Utamakan kotak di sebelah kanan label
-    let left = x + gap;
-    let top = y - panelHeight / 2;
-
-    // Jika sisi kanan tidak cukup, pindahkan ke kiri label
-    if (left + panelWidth > window.innerWidth - margin) {
-      left = x - panelWidth - gap;
-    }
-
-    // Pastikan kotak tidak keluar layar
-    left = Math.max(
-      margin,
-      Math.min(left, window.innerWidth - panelWidth - margin)
-    );
-
-    top = Math.max(
-      margin,
-      Math.min(top, window.innerHeight - panelHeight - margin)
-    );
-
-    panel.style.left = left + "px";
-    panel.style.top = top + "px";
-    panel.style.right = "auto";
-    panel.style.bottom = "auto";
-    panel.style.transform = "none";
-  });
-}
-
 
 
     /* ==================================================
@@ -1278,9 +1222,27 @@ function showInfo(key, target) {
       </a-entity>
 
 
-      <!-- PANAH AKAR: diarahkan ke bagian tanah/akar -->
-      <a-entity line="start: -0.53 -0.48 0.20; end: -0.22 -0.58 0.20; color: #ffeb3b"></a-entity>
-      <a-cone color="#ffeb3b" radius-bottom="0.035" radius-top="0" height="0.09" position="-0.22 -0.58 0.20" rotation="0 0 -108"></a-cone>
+      <!-- PANAH PENUNJUK: ujung panah diarahkan ke bagian tanaman -->
+      <!-- Akar: dari label kiri-bawah ke pangkal/akar -->
+      <a-entity line="start: -0.48 -0.68 0.10; end: -0.04 -0.53 0.10; color: #ffd21f; opacity: 1"></a-entity>
+      <a-sphere position="-0.04 -0.53 0.10" radius="0.035" material="color:#ffd21f; shader:flat"></a-sphere>
+
+      <!-- Batang: dari label kanan ke batang utama -->
+      <a-entity line="start: 0.46 -0.05 0.10; end: 0.08 0.10 0.10; color: #ffd21f; opacity: 1"></a-entity>
+      <a-sphere position="0.08 0.10 0.10" radius="0.035" material="color:#ffd21f; shader:flat"></a-sphere>
+
+      <!-- Daun: dari label kiri-atas ke kumpulan daun -->
+      <a-entity line="start: -0.49 0.48 0.10; end: -0.27 0.43 0.10; color: #ffd21f; opacity: 1"></a-entity>
+      <a-sphere position="-0.27 0.43 0.10" radius="0.035" material="color:#ffd21f; shader:flat"></a-sphere>
+
+      <!-- Bunga: dari label kanan-atas ke bunga, bukan ke buah -->
+      <a-entity line="start: 0.42 0.96 0.10; end: 0.12 0.69 0.10; color: #ffd21f; opacity: 1"></a-entity>
+      <a-sphere position="0.12 0.69 0.10" radius="0.035" material="color:#ffd21f; shader:flat"></a-sphere>
+
+      <!-- Buah: dari label kanan ke tomat -->
+      <a-entity line="start: 0.55 0.39 0.10; end: 0.28 0.15 0.10; color: #ffd21f; opacity: 1"></a-entity>
+      <a-sphere position="0.28 0.15 0.10" radius="0.035" material="color:#ffd21f; shader:flat"></a-sphere>
+
 
       <!-- LABEL AKAR -->
 
@@ -1289,7 +1251,7 @@ function showInfo(key, target) {
         data-part="akar"
         label-clickable
 
-        position="-0.78 -0.48 0.20"
+        position="-0.78 -0.72 0.12"
         width="0.62"
         height="0.28"
 
@@ -1305,10 +1267,6 @@ function showInfo(key, target) {
 
       </a-plane>
 
-
-      <!-- PANAH BATANG: ujung diarahkan ke batang utama -->
-      <a-entity line="start: 0.48 -0.10 0.16; end: 0.04 -0.08 0.16; color: #ffeb3b"></a-entity>
-      <a-cone color="#ffeb3b" radius-bottom="0.035" radius-top="0" height="0.09" position="0.04 -0.08 0.16" rotation="0 0 90"></a-cone>
 
       <!-- LABEL BATANG -->
 
@@ -1334,10 +1292,6 @@ function showInfo(key, target) {
       </a-plane>
 
 
-      <!-- PANAH DAUN: dari label menuju daun -->
-      <a-entity line="start: -0.52 0.40 0.16; end: -0.22 0.48 0.16; color: #ffeb3b"></a-entity>
-      <a-cone color="#ffeb3b" radius-bottom="0.035" radius-top="0" height="0.09" position="-0.22 0.48 0.16" rotation="0 0 -75"></a-cone>
-
       <!-- LABEL DAUN -->
 
       <a-plane
@@ -1362,10 +1316,6 @@ function showInfo(key, target) {
       </a-plane>
 
 
-      <!-- PANAH BUNGA: ujung diarahkan ke bunga kuning di bagian atas -->
-      <a-entity line="start: 0.48 1.02 0.16; end: 0.18 1.12 0.16; color: #ffeb3b"></a-entity>
-      <a-cone color="#ffeb3b" radius-bottom="0.035" radius-top="0" height="0.09" position="0.18 1.12 0.16" rotation="0 0 -72"></a-cone>
-
       <!-- LABEL BUNGA -->
 
       <a-plane
@@ -1389,10 +1339,6 @@ function showInfo(key, target) {
 
       </a-plane>
 
-
-      <!-- PANAH BUAH: ujung diarahkan ke tomat merah -->
-      <a-entity line="start: 0.53 0.36 0.16; end: 0.28 0.32 0.16; color: #ffeb3b"></a-entity>
-      <a-cone color="#ffeb3b" radius-bottom="0.035" radius-top="0" height="0.09" position="0.28 0.32 0.16" rotation="0 0 99"></a-cone>
 
       <!-- LABEL BUAH -->
 
