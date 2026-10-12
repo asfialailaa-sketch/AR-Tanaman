@@ -22,33 +22,31 @@
        PANEL INFORMASI AR
        ========================= */
     
-      #infoPanel {
+      
+#infoPanel {
   position: fixed;
-  top: 50%;
-  right: 10px;
+  left: 0;
+  top: 0;
+  right: auto;
   bottom: auto;
+  transform: none;
 
-  transform: translateY(-50%);
-
-  width: min(42vw, 300px);
+  width: min(72vw, 300px);
   max-height: 38vh;
 
   overflow-y: auto;
   overflow-x: hidden;
 
   padding: 18px;
-
   background: rgba(25, 25, 25, 0.95);
   color: white;
-
   border-radius: 18px;
 
   z-index: 9998;
-
   box-sizing: border-box;
-
   display: none;
 }
+
 
    #infoPanel h2 {
   font-size: 22px;
@@ -405,7 +403,7 @@ cursor: pointer;
 
         this.el.addEventListener("click", () => {
 
-          showInfo(this.el.dataset.part);
+          showInfo(this.el.dataset.part, this.el);
 
         });
 
@@ -503,7 +501,7 @@ cursor: pointer;
 
             const key = target.dataset.part;
 
-            showInfo(key);
+            showInfo(key, target);
 
           }
 
