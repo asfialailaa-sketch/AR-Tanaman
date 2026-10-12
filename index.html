@@ -379,18 +379,74 @@ cursor: pointer;
        FUNGSI INFORMASI AR
        ================================================== */
 
-    function showInfo(key) {
+    
+function showInfo(key, target) {
+  const data = INFO[key];
 
-      const data = INFO[key];
+  if (!data) return;
 
-      if (!data) return;
+  const panel = document.getElementById("infoPanel");
 
-      document.getElementById("infoTitle").textContent = data.title;
+  document.getElementById("infoTitle").textContent = data.title;
+  document.getElementById("infoText").textContent = data.text;
 
-      document.getElementById("infoText").textContent = data.text;
+  panel.style.display = "block";
 
-      document.getElementById("infoPanel").style.display = "block";
+  // Tunggu sampai ukuran kotak informasi diketahui
+  requestAnimationFrame(() => {
+    const scene = document.querySelector("a-scene");
+
+    if (!scene || !scene.camera || !scene.canvas || !target) {
+      return;
     }
+
+    // Ambil posisi label AR yang diklik
+    const worldPos = new THREE.Vector3();
+
+    target.object3D.getWorldPosition(worldPos);
+
+    // Ubah posisi 3D menjadi posisi di layar
+    worldPos.project(scene.camera);
+
+    const rect = scene.canvas.getBoundingClientRect();
+
+    const x = rect.left + (worldPos.x + 1) * rect.width / 2;
+    const y = rect.top + (1 - worldPos.y) * rect.height / 2;
+
+    const margin = 12;
+    const gap = 12;
+
+    const panelWidth = panel.offsetWidth;
+    const panelHeight = panel.offsetHeight;
+
+    // Utamakan kotak di sebelah kanan label
+    let left = x + gap;
+    let top = y - panelHeight / 2;
+
+    // Jika sisi kanan tidak cukup, pindahkan ke kiri label
+    if (left + panelWidth > window.innerWidth - margin) {
+      left = x - panelWidth - gap;
+    }
+
+    // Pastikan kotak tidak keluar layar
+    left = Math.max(
+      margin,
+      Math.min(left, window.innerWidth - panelWidth - margin)
+    );
+
+    top = Math.max(
+      margin,
+      Math.min(top, window.innerHeight - panelHeight - margin)
+    );
+
+    panel.style.left = left + "px";
+    panel.style.top = top + "px";
+    panel.style.right = "auto";
+    panel.style.bottom = "auto";
+    panel.style.transform = "none";
+  });
+}
+
 
 
     /* ==================================================
